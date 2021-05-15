@@ -13,7 +13,7 @@ cd sfetch
 cargo build --release
 ```
 
-You may now [configure](#configuration] and rebuild `sfetch`. The binary will be located at
+You may now [configure](#configuration) and rebuild `sfetch`. The binary will be located at
 `target/release/sfetch`.
 
 ## The Goal
