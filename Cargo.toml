@@ -3,5 +3,6 @@ name = "sfetch"
 version = "1.0.0"
 edition = "2018"
 license = "BSD-3-Clause"
-
+description = "A minimalistic and customizable fetching program written in Rust."
+repository = "https://github.com/MattTheNub/sfetch.git"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
