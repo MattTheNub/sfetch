@@ -4,8 +4,8 @@ A minimalistic and customizable fetching program written in Rust.
 
 ## Installation
 
-The easiest way to install `sfetch` is to run `cargo install sfetch`. However, if you want to
-customize your installation, you may instead build from source:
+Only Linux is currently supported. The easiest way to install `sfetch` is to run `cargo install sfetch`.
+However, if you want to customize your installation, you may instead build from source:
 
 ```sh
 git clone https://github.com/MattTheNub/sfetch.git
