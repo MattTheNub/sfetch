@@ -1,11 +1,13 @@
 mod config;
 
-fn pkg_count(pkgs: &mut usize, command: &str, args: &[&str]) {
-	let list = match std::process::Command::new(command).args(args).output() {
-		Ok(output) => String::from_utf8(output.stdout).unwrap(),
-		_ => "".to_string(),
-	};
-	*pkgs += list.split("\n").collect::<Vec<&str>>().len() - 1;
+fn pkg_count(pkgs: &mut usize, commands: &[&str], args: &[&str]) {
+	for cmd in commands {
+		let list = match std::process::Command::new(cmd).args(args).output() {
+			Ok(output) => String::from_utf8(output.stdout).unwrap(),
+			_ => "".to_string(),
+		};
+		*pkgs += list.split("\n").collect::<Vec<&str>>().len() - 1;
+	}
 }
 
 fn main() {
@@ -54,15 +56,13 @@ fn main() {
 
 	if config::SHOW_PACKAGES {
 		let mut pkgs = 0;
-		pkg_count(&mut pkgs, "xbps-query", &["-l"]);
-		pkg_count(&mut pkgs, "flatpak", &["list"]);
-		pkg_count(&mut pkgs, "pacman", &["-Qq", "--color", "never"]);
-		pkg_count(&mut pkgs, "apt", &["list"]);
-		pkg_count(&mut pkgs, "rpm", &["-qa"]);
-		pkg_count(&mut pkgs, "kiss", &["l"]);
-		pkg_count(&mut pkgs, "apk", &["info"]);
-		pkg_count(&mut pkgs, "opkg", &["list-installed"]);
-		pkg_count(&mut pkgs, "lvu", &["installed"]);
+		pkg_count(&mut pkgs, &["xbps-query"], &["-l"]);
+		pkg_count(&mut pkgs, &["flatpak", "apt", "kiss"], &["list"]);
+		pkg_count(&mut pkgs, &["pacman"], &["-Qq", "--color", "never"]);
+		pkg_count(&mut pkgs, &["rpm"], &["-qa"]);
+		pkg_count(&mut pkgs, &["apk"], &["info"]);
+		pkg_count(&mut pkgs, &["opkg"], &["list-installed"]);
+		pkg_count(&mut pkgs, &["lvu"], &["installed"]);
 		println!("\x1b[1;34mPackages: \x1b[0m{}", pkgs);
 	}
 
@@ -77,5 +77,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.1.0");
+	println!("\x1b[38;2;128;128;128msfetch   v1.1.1");
 }
