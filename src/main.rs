@@ -61,7 +61,6 @@ fn main() {
 		pkg_count(&mut pkgs, "rpm", &["-qa"]);
 		pkg_count(&mut pkgs, "kiss", &["l"]);
 		pkg_count(&mut pkgs, "apk", &["info"]);
-		pkg_count(&mut pkgs, "spm", &["list", "-i"]);
 		pkg_count(&mut pkgs, "opkg", &["list-installed"]);
 		pkg_count(&mut pkgs, "lvu", &["installed"]);
 		println!("\x1b[1;34mPackages: \x1b[0m{}", pkgs);
@@ -78,5 +77,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.0.0");
+	println!("\x1b[38;2;128;128;128msfetch   v1.1.0");
 }
