@@ -18,43 +18,43 @@ fn main() {
 	let os_release = std::fs::read_to_string("/etc/os-release").unwrap();
 
 	for line in os_release.lines() {
-		if line.starts_with("NAME=") {
-			print!("\x1b[1;34mOS:\x1b[0m       ");
+		if line.starts_with("NAME=") && config::OS != "" {
+			print!("{}", config::OS);
 			println!("{} {}", &line[6..line.len() - 1], std::env::consts::ARCH);
 		}
 	}
 
-	if config::SHOW_UPTIME {
+	if config::UPTIME != "" {
 		let uptime = std::fs::read_to_string("/proc/uptime").unwrap();
 		let uptime: u64 = uptime.split(".").collect::<Vec<&str>>()[0].parse().unwrap();
-		print!("\x1b[1;34mUptime:\x1b[0m   ");
+		print!("{}", config::UPTIME);
 		println!("{}h {}m", uptime / 60 / 60, uptime / 60 % 60);
 	}
 
-	if config::SHOW_KERNEL {
+	if config::KERNEL != "" {
 		let kernel_file = std::fs::read_to_string("/proc/version").unwrap();
 		let kernel = kernel_file.split(" ").collect::<Vec<&str>>()[2];
-		println!("\x1b[1;34mKernel:\x1b[0m   {}", kernel);
+		println!("{}{}", config::KERNEL, kernel);
 	}
 
 	let shell_name = std::env::var("SHELL");
-	match (shell_name, config::SHOW_SHELL) {
+	match (shell_name, config::SHELL != "") {
 		(Ok(shell_name), true) => {
 			let shell_vec = shell_name.split("/").collect::<Vec<&str>>();
-			println!("\x1b[1;34mShell:\x1b[0m    {}", shell_vec.last().unwrap());
+			println!("{}{}", config::SHELL, shell_vec.last().unwrap());
 		}
 		_ => (),
 	}
 	let desktop = std::env::var("DESKTOP_SESSION");
-	match (desktop, config::SHOW_DE) {
+	match (desktop, config::DE != "") {
 		(Ok(desktop), true) => {
 			let desktop_vec = desktop.split("/").collect::<Vec<&str>>();
-			println!("\x1b[1;34mDE:\x1b[0m       {}", desktop_vec.last().unwrap());
+			println!("{}{}", config::DE, desktop_vec.last().unwrap());
 		}
 		_ => (),
 	}
 
-	if config::SHOW_PACKAGES {
+	if config::PACKAGES != "" {
 		let mut pkgs = 0;
 		pkg_count(&mut pkgs, &["xbps-query"], &["-l"]);
 		pkg_count(&mut pkgs, &["flatpak", "apt", "kiss"], &["list"]);
@@ -63,7 +63,7 @@ fn main() {
 		pkg_count(&mut pkgs, &["apk"], &["info"]);
 		pkg_count(&mut pkgs, &["opkg"], &["list-installed"]);
 		pkg_count(&mut pkgs, &["lvu"], &["installed"]);
-		println!("\x1b[1;34mPackages: \x1b[0m{}", pkgs);
+		println!("{}{}", config::PACKAGES, pkgs);
 	}
 
 	let mut base = 30u8;
@@ -77,5 +77,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.1.1");
+	println!("\x1b[38;2;128;128;128msfetch   v1.2.0");
 }
