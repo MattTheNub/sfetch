@@ -19,8 +19,8 @@ fn main() {
 
 	for line in os_release.lines() {
 		if line.starts_with("NAME=") && !config::OS.is_empty() {
-			print!("{}", config::OS);
-			println!("{} {}", &line[6..line.len() - 1], std::env::consts::ARCH);
+			print!("{}{}", config::OS, &line[5..line.len()].replace('"', ""));
+			println!(" {}", std::env::consts::ARCH);
 		}
 	}
 
@@ -71,5 +71,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.2.1");
+	println!("\x1b[38;2;128;128;128msfetch   v1.2.2");
 }
