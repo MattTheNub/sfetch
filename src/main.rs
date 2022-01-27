@@ -26,25 +26,23 @@ fn main() {
 
 	if !config::UPTIME.is_empty() {
 		let uptime = std::fs::read_to_string("/proc/uptime").unwrap();
-		let uptime: u64 = uptime.split('.').collect::<Vec<&str>>()[0].parse().unwrap();
+		let uptime: u64 = uptime.split('.').next().unwrap().parse().unwrap();
 		print!("{}", config::UPTIME);
 		println!("{}h {}m", uptime / 60 / 60, uptime / 60 % 60);
 	}
 
 	if !config::KERNEL.is_empty() {
 		let kernel_file = std::fs::read_to_string("/proc/version").unwrap();
-		let kernel = kernel_file.split(' ').collect::<Vec<&str>>()[2];
+		let kernel = kernel_file.split(' ').nth(2).unwrap();
 		println!("{}{}", config::KERNEL, kernel);
 	}
 
 	if let (Ok(shell_name), false) = (std::env::var("SHELL"), config::SHELL.is_empty()) {
-		let shell_vec = shell_name.split('/').collect::<Vec<&str>>();
-		println!("{}{}", config::SHELL, shell_vec.last().unwrap());
+		println!("{}{}", config::SHELL, shell_name.split('/').last().unwrap());
 	}
 
 	if let (Ok(desktop), false) = (std::env::var("DESKTOP_SESSION"), config::DE.is_empty()) {
-		let desktop_vec = desktop.split('/').collect::<Vec<&str>>();
-		println!("{}{}", config::DE, desktop_vec.last().unwrap());
+		println!("{}{}", config::DE, desktop.split('/').last().unwrap());
 	}
 
 	if !config::PACKAGES.is_empty() {
@@ -59,16 +57,30 @@ fn main() {
 		println!("{}{}", config::PACKAGES, pkgs);
 	}
 
+	if !config::MEM.is_empty() {
+		let mem_file = std::fs::read_to_string("/proc/meminfo").unwrap();
+
+		let total = mem_file.lines().find(|l| l.starts_with("MemTotal:"));
+		let avail = mem_file.lines().find(|l| l.starts_with("MemAvailable:"));
+
+		let total = total.unwrap().split(':').nth(1).unwrap().rsplit(' ').nth(1);
+		let avail = avail.unwrap().split(':').nth(1).unwrap().rsplit(' ').nth(1);
+
+		let total_num = total.unwrap().parse::<u64>().unwrap() / 1024;
+		let avail_num = total_num - avail.unwrap().parse::<u64>().unwrap() / 1024;
+
+		println!("{}{} / {} MiB", config::MEM, avail_num, total_num);
+	}
+
 	let mut base = 30u8;
 	for enabled in &[config::SHOW_REGULAR_COLORS, config::SHOW_INTENSE_COLORS] {
 		if *enabled {
-			for color in base..=(base + 7) {
-				print!("\x1b[0;{}m{}", color, config::COLOR_STRING);
-			}
-			println!()
+			(base..=(base + 7))
+				.for_each(|color| print!("\x1b[0;{}m{}", color, config::COLOR_STRING));
+			println!();
 		}
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.2.3");
+	println!("\x1b[38;2;128;128;128msfetch   v1.3.0");
 }
