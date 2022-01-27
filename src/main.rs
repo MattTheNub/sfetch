@@ -47,7 +47,8 @@ fn main() {
 	if !config::PACKAGES.is_empty() {
 		let mut pkgs = 0;
 		pkg_count(&mut pkgs, &["xbps-query"], &["-l"]);
-		pkg_count(&mut pkgs, &["flatpak", "apt", "kiss"], &["list"]);
+		pkg_count(&mut pkgs, &["flatpak", "kiss"], &["list"]);
+		pkg_count(&mut pkgs, &["apt"], &["list", "--installed"]);
 		pkg_count(&mut pkgs, &["pacman"], &["-Qq", "--color", "never"]);
 		pkg_count(&mut pkgs, &["rpm"], &["-qa"]);
 		pkg_count(&mut pkgs, &["apk"], &["info"]);
@@ -81,5 +82,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.3.0");
+	println!("\x1b[38;2;128;128;128msfetch   v1.3.1");
 }
