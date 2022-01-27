@@ -26,9 +26,8 @@ fn main() {
 
 	if !config::UPTIME.is_empty() {
 		let uptime = std::fs::read_to_string("/proc/uptime").unwrap();
-		let uptime: u64 = uptime.split('.').next().unwrap().parse().unwrap();
-		print!("{}", config::UPTIME);
-		println!("{}h {}m", uptime / 60 / 60, uptime / 60 % 60);
+		let uptime = uptime.split('.').next().unwrap().parse::<u64>().unwrap() / 60;
+		println!("{}{}h {}m", config::UPTIME, uptime / 60, uptime % 60);
 	}
 
 	if !config::KERNEL.is_empty() {
