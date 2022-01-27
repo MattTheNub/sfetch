@@ -37,13 +37,12 @@ fn main() {
 		println!("{}{}", config::KERNEL, kernel);
 	}
 
-	let shell_name = std::env::var("SHELL");
-	if let (Ok(shell_name), false) = (shell_name, config::SHELL.is_empty()) {
+	if let (Ok(shell_name), false) = (std::env::var("SHELL"), config::SHELL.is_empty()) {
 		let shell_vec = shell_name.split('/').collect::<Vec<&str>>();
 		println!("{}{}", config::SHELL, shell_vec.last().unwrap());
 	}
-	let desktop = std::env::var("DESKTOP_SESSION");
-	if let (Ok(desktop), false) = (desktop, config::DE.is_empty()) {
+
+	if let (Ok(desktop), false) = (std::env::var("DESKTOP_SESSION"), config::DE.is_empty()) {
 		let desktop_vec = desktop.split('/').collect::<Vec<&str>>();
 		println!("{}{}", config::DE, desktop_vec.last().unwrap());
 	}
@@ -71,5 +70,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.2.2");
+	println!("\x1b[38;2;128;128;128msfetch   v1.2.3");
 }

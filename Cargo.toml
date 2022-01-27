@@ -1,8 +1,8 @@
 [package]
-name = "sfetch"
-version = "1.2.2"
+description = "A minimalistic and customizable fetching program written in Rust."
 edition = "2018"
 license = "BSD-3-Clause"
-description = "A minimalistic and customizable fetching program written in Rust."
+name = "sfetch"
 repository = "https://github.com/MattTheNub/sfetch.git"
+version = "1.2.3"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
