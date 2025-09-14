@@ -1,50 +1,44 @@
+use {config::*, std::env::consts::ARCH, std::env::var, std::fs::*, std::process::Command};
 mod config;
 
 fn pkg_count(pkgs: &mut usize, commands: &[&str], args: &[&str]) {
 	for cmd in commands {
-		let list = match std::process::Command::new(cmd).args(args).output() {
-			Ok(output) => String::from_utf8(output.stdout).unwrap(),
-			_ => "".to_string(),
-		};
-		*pkgs += list.split('\n').count() - 1;
+		let list = Command::new(cmd).args(args).output();
+		let list = list.map(|output| String::from_utf8(output.stdout).unwrap());
+		*pkgs += list.unwrap_or_default().split('\n').count() - 1;
 	}
 }
 
 fn main() {
-	let hostname = std::fs::read_to_string("/proc/sys/kernel/hostname").unwrap();
-	print!("\x1b[1;36m{}", std::env::var("USER").unwrap());
-	print!("\x1b[0m@\x1b[1;36m{}", hostname);
+	let hn = read_to_string("/proc/sys/kernel/hostname").unwrap();
+	print!("\x1b[1;36m{}\x1b[0m@\x1b[1;36m{}", var("USER").unwrap(), hn);
 
-	let os_release = std::fs::read_to_string("/etc/os-release").unwrap();
+	let mut os_release = read_to_string("/etc/os-release").unwrap();
+	os_release.retain(|_| !OS.is_empty());
 
-	for line in os_release.lines() {
-		if line.starts_with("NAME=") && !config::OS.is_empty() {
-			print!("{}{}", config::OS, &line[5..line.len()].replace('"', ""));
-			println!(" {}", std::env::consts::ARCH);
+	if let Some(line) = os_release.lines().find(|line| line.starts_with("NAME=")) {
+		println!("{}{} {}", OS, &line[5..line.len()].replace('"', ""), ARCH);
+	}
+
+	if !UPTIME.is_empty() {
+		let uptime = read_to_string("/proc/uptime").unwrap();
+		let uptime = uptime.split('.').next().unwrap().parse::<u64>().unwrap() / 60;
+		println!("{}{}h {}m", UPTIME, uptime / 60, uptime % 60);
+	}
+
+	if !KERNEL.is_empty() {
+		let kernel_file = read_to_string("/proc/version").unwrap();
+		let kernel = kernel_file.split(' ').nth(2).unwrap();
+		println!("{}{}", KERNEL, kernel);
+	}
+
+	for (val, prefix) in [(var("SHELL"), SHELL), (var("DESKTOP_SESSION"), DE)] {
+		if let (Ok(val), false) = (val, prefix.is_empty()) {
+			println!("{}{}", prefix, val.split('/').next_back().unwrap());
 		}
 	}
 
-	if !config::UPTIME.is_empty() {
-		let uptime = std::fs::read_to_string("/proc/uptime").unwrap();
-		let uptime = uptime.split('.').next().unwrap().parse::<u64>().unwrap() / 60;
-		println!("{}{}h {}m", config::UPTIME, uptime / 60, uptime % 60);
-	}
-
-	if !config::KERNEL.is_empty() {
-		let kernel_file = std::fs::read_to_string("/proc/version").unwrap();
-		let kernel = kernel_file.split(' ').nth(2).unwrap();
-		println!("{}{}", config::KERNEL, kernel);
-	}
-
-	if let (Ok(shell_name), false) = (std::env::var("SHELL"), config::SHELL.is_empty()) {
-		println!("{}{}", config::SHELL, shell_name.split('/').last().unwrap());
-	}
-
-	if let (Ok(desktop), false) = (std::env::var("DESKTOP_SESSION"), config::DE.is_empty()) {
-		println!("{}{}", config::DE, desktop.split('/').last().unwrap());
-	}
-
-	if !config::PACKAGES.is_empty() {
+	if !PACKAGES.is_empty() {
 		let mut pkgs = 0;
 		pkg_count(&mut pkgs, &["xbps-query"], &["-l"]);
 		pkg_count(&mut pkgs, &["flatpak", "kiss"], &["list"]);
@@ -54,11 +48,11 @@ fn main() {
 		pkg_count(&mut pkgs, &["apk"], &["info"]);
 		pkg_count(&mut pkgs, &["opkg"], &["list-installed"]);
 		pkg_count(&mut pkgs, &["lvu"], &["installed"]);
-		println!("{}{}", config::PACKAGES, pkgs);
+		println!("{}{}", PACKAGES, pkgs);
 	}
 
-	if !config::MEM.is_empty() {
-		let mem_file = std::fs::read_to_string("/proc/meminfo").unwrap();
+	if !MEM.is_empty() {
+		let mem_file = read_to_string("/proc/meminfo").unwrap();
 
 		let total = mem_file.lines().find(|l| l.starts_with("MemTotal:"));
 		let avail = mem_file.lines().find(|l| l.starts_with("MemAvailable:"));
@@ -69,14 +63,13 @@ fn main() {
 		let total_num = total.unwrap().parse::<u64>().unwrap() / 1024;
 		let avail_num = total_num - avail.unwrap().parse::<u64>().unwrap() / 1024;
 
-		println!("{}{} / {} MiB", config::MEM, avail_num, total_num);
+		println!("{}{} / {} MiB", MEM, avail_num, total_num);
 	}
 
 	let mut base = 30u8;
-	for enabled in &[config::SHOW_REGULAR_COLORS, config::SHOW_INTENSE_COLORS] {
+	for enabled in &[SHOW_REGULAR_COLORS, SHOW_INTENSE_COLORS] {
 		if *enabled {
-			(base..=(base + 7))
-				.for_each(|color| print!("\x1b[0;{}m{}", color, config::COLOR_STRING));
+			(base..=(base + 7)).for_each(|color| print!("\x1b[0;{}m{}", color, COLOR_STRING));
 			println!();
 		}
 		base += 60;
