@@ -6,6 +6,7 @@ pub const KERNEL: &str = "\x1b[1;34mKernel:   \x1b[0m";
 pub const SHELL: &str = "\x1b[1;34mShell:    \x1b[0m";
 pub const DE: &str = "\x1b[1;34mDE:       \x1b[0m";
 pub const PACKAGES: &str = "\x1b[1;34mPackages: \x1b[0m";
+pub const CPU: &str = "\x1b[1;34mCPU:      \x1b[0m";
 pub const MEM: &str = "\x1b[1;34mMemory:   \x1b[0m";
 
 // Color toggles

@@ -51,6 +51,12 @@ fn main() {
 		println!("{}{}", PACKAGES, pkgs);
 	}
 
+	let cpu = read_to_string("/proc/cpuinfo").unwrap_or_default();
+	let cpu = cpu.lines().find(|l| l.starts_with("model name"));
+	if let (Some(cpu), false) = (cpu, CPU.is_empty()) {
+		println!("{}{}", CPU, cpu.split(':').nth(1).unwrap().trim());
+	}
+
 	if !MEM.is_empty() {
 		let mem_file = read_to_string("/proc/meminfo").unwrap();
 
@@ -75,5 +81,5 @@ fn main() {
 		base += 60;
 	}
 
-	println!("\x1b[38;2;128;128;128msfetch   v1.3.1");
+	println!("\x1b[38;2;128;128;128msfetch   v1.4.0");
 }
